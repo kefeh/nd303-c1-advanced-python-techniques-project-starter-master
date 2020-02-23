@@ -53,7 +53,8 @@ class Query(object):
         """
 
         # TODO: Translate the query parameters into a QueryBuild.Selectors object
-        date_search = Query.DateSearch(DateSearch.equals.name, self.date) if self.date else Query.DateSearch(DateSearch.between.name, [self.start_date, self.end_date])
+        date_search = Query.DateSearch(DateSearch.equals.name, self.date) if self.date else Query.DateSearch(
+            DateSearch.between.name, [self.start_date, self.end_date])
 
         return_object = Query.ReturnObjects.get(self.return_object)
 
@@ -129,7 +130,7 @@ class Filter(object):
         :param results: List of Near Earth Object results
         :return: filtered list of Near Earth Object results
         """
-        # TODO: Takes a list of NearEarthObjects and applies the value of its filter operation to the 
+        # TODO: Takes a list of NearEarthObjects and applies the value of its filter operation to the
         filtered_list = []
         for neo in results:
             operation = Filter.Operators.get(self.operation)
@@ -185,12 +186,14 @@ class NEOSearcher(object):
         elif self.date_search_type == DateSearch.between.name:
             list_of_neos = self.apply_datesearch_between(
                 self.date_to_neos, date[0], date[1])
-        filtered_neos = []
-        for neo in list_of_neos:
-            if neo.is_potentially_hazardous_asteroid:
-                filtered_neos.append(neo)
+        orbits = self.return_orbit_paths_from_neos(list_of_neos)
 
-        return filtered_neos[: query.number]
+        filtered_orbits = orbits
+        filtered_neos = list_of_neos
+
+        if query.return_object == OrbitPath:
+            return filtered_orbits[: int(query.number)]
+        return filtered_neos[: int(query.number)]
 
     def apply_dateseaerch_equal(self, a_neo_map, date):
         """ This function perfoms the date filtering when only one date and return the results
@@ -217,3 +220,16 @@ class NEOSearcher(object):
             if k >= start_date and k <= end_date:
                 result += v
         return result
+
+    def return_neo_from_orbit_path(self, orbit_paths):
+        result = [self.db.name_to_neo_map.get(
+            path.neo_name) for path in orbit_paths]
+        return result
+
+    def return_orbit_paths_from_neos(self, neos):
+        return_val = []
+
+        for neo in neos:
+            return_val += neo.orbits
+
+        return return_val
