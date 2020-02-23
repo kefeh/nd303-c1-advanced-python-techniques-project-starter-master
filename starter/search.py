@@ -26,7 +26,8 @@ class Query(object):
     to structure the query information into a format the NEOSearcher can use for date search.
     """
 
-    Selectors = namedtuple('Selectors', ['date_search', 'number', 'filters', 'return_object'])
+    Selectors = namedtuple(
+        'Selectors', ['date_search', 'number', 'filters', 'return_object'])
     DateSearch = namedtuple('DateSearch', ['type', 'values'])
     ReturnObjects = {'NEO': NearEarthObject, 'Path': OrbitPath}
 
@@ -116,6 +117,8 @@ class NEOSearcher(object):
         """
         self.db = db
         # TODO: What kind of an instance variable can we use to connect DateSearch to how we do search?
+        self.date_search_type = None
+        self.date_to_neos = db.get_date_to_neos_map()
 
     def get_objects(self, query):
         """
@@ -135,7 +138,37 @@ class NEOSearcher(object):
         self.date_search_type = query.date_search.type
         date = query.date_search.values
         list_of_neos = []
-        for k, v in self.db.get_date_to_neos_map().items():
-            if k == date:
-                list_of_neos += v
+        if self.date_search_type == DateSearch.equals.name:
+            list_of_neos = self.apply_dateseaerch_equal(
+                self.date_to_neos, date)
+        elif self.date_search_type == DateSearch.between.name:
+            list_of_neos = self.apply_datesearch_between(
+                self.date_to_neos, date[0], date[1])
+
         return list_of_neos[: query.number]
+
+    def apply_dateseaerch_equal(self, a_neo_map, date):
+        """ This function perfoms the date filtering when only one date and return the results
+
+        :param a_neo_map: dict of date to neos mappings
+                date: string date to filter for
+        :return: A list of filtered neos
+        """
+        result = []
+        for k, v in a_neo_map.items():
+            if k == date:
+                result += v
+        return result
+
+    def apply_datesearch_between(self, a_neo_map, start_date, end_date):
+        """ This functions performs the date filtering when more than one date is specified and returns the result
+
+        :param a_neo_map: dict of date to neos mappings
+                start_date: string start date for filtering
+                end_date: string end date for filtering
+        :return: A list of filtered neos"""
+        result = []
+        for k, v in a_neo_map.items():
+            if k >= start_date and k <= end_date:
+                result += v
+        return result
