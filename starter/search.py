@@ -37,6 +37,8 @@ class Query(object):
         """
         # TODO: What instance variables will be useful for storing on the Query object?
         self.date = kwargs.get('date', None)
+        self.end_date = kwargs.get('end_date', None)
+        self.start_date = kwargs.get('start_date', None)
         self.number = kwargs.get('number', None)
         self.return_object = kwargs.get('return_object', None)
 
@@ -49,7 +51,7 @@ class Query(object):
         """
 
         # TODO: Translate the query parameters into a QueryBuild.Selectors object
-        date_search = Query.DateSearch(DateSearch.equals.name, self.date)
+        date_search = Query.DateSearch(DateSearch.equals.name, self.date) if self.date else Query.DateSearch(DateSearch.between.name, [self.start_date, self.end_date])
 
         return_object = Query.ReturnObjects.get(self.return_object)
 
@@ -144,8 +146,12 @@ class NEOSearcher(object):
         elif self.date_search_type == DateSearch.between.name:
             list_of_neos = self.apply_datesearch_between(
                 self.date_to_neos, date[0], date[1])
+        filtered_neos = []
+        for neo in list_of_neos:
+            if neo.is_potentially_hazardous_asteroid:
+                filtered_neos.append(neo)
 
-        return list_of_neos[: query.number]
+        return filtered_neos[: query.number]
 
     def apply_dateseaerch_equal(self, a_neo_map, date):
         """ This function perfoms the date filtering when only one date and return the results
