@@ -58,6 +58,14 @@ class Query(object):
         return_object = Query.ReturnObjects.get(self.return_object)
 
         filters = []
+        if self.filter:
+            filter_options = Filter.create_filter_options(self.filter)
+            for k, v in filter_options.items():
+                for a_filter in v:
+                    option = a_filter.split(':')[0]
+                    operation = a_filter.split(':')[1]
+                    value = a_filter.split(':')[-1]
+                    filters.append(Filter(option, k, operation, value))
 
         return Query.Selectors(date_search, self.number, filters, return_object)
 
@@ -130,7 +138,7 @@ class Filter(object):
             try:
                 if operation(val, self.value):
                     filtered_list.append(neo)
-            except Exception as exp:
+            except Exception:
                 if operation(str(val), str(self.value)):
                     filtered_list.append(neo)
 
