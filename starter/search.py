@@ -188,8 +188,24 @@ class NEOSearcher(object):
                 self.date_to_neos, date[0], date[1])
         orbits = self.return_orbit_paths_from_neos(list_of_neos)
 
+        distance_filter = None
+        for a_filter in query.filters:
+            if a_filter.field == 'distance':
+                distance_filter = a_filter
+                continue
+            list_of_neos = a_filter.apply(list_of_neos)
+        orbits = self.return_orbit_paths_from_neos(list_of_neos)
+
         filtered_orbits = orbits
         filtered_neos = list_of_neos
+
+        if distance_filter:
+            filtered_orbits = distance_filter.apply(orbits)
+
+            filtered_neos = self.return_neo_from_orbit_path(filtered_orbits)
+
+        filtered_neos = list(set(filtered_neos))
+        filtered_orbits = list(set(filtered_orbits))
 
         if query.return_object == OrbitPath:
             return filtered_orbits[: int(query.number)]
