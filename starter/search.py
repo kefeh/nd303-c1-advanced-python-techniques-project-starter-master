@@ -35,6 +35,9 @@ class Query(object):
         :param kwargs: dict of search query parameters to determine which SearchOperation query to use
         """
         # TODO: What instance variables will be useful for storing on the Query object?
+        self.date = kwargs.get('date', None)
+        self.number = kwargs.get('number', None)
+        self.return_object = kwargs.get('return_object', None)
 
     def build_query(self):
         """
@@ -45,6 +48,13 @@ class Query(object):
         """
 
         # TODO: Translate the query parameters into a QueryBuild.Selectors object
+        date_search = Query.DateSearch(DateSearch.equals.name, self.date)
+
+        return_object = Query.ReturnObjects.get(self.return_object)
+
+        filters = []
+
+        return Query.Selectors(date_search, self.number, filters, return_object)
 
 
 class Filter(object):
@@ -122,3 +132,10 @@ class NEOSearcher(object):
         # TODO: Write instance methods that get_objects can use to implement the two types of DateSearch your project
         # TODO: needs to support that then your filters can be applied to. Remember to return the number specified in
         # TODO: the Query.Selectors as well as in the return_type from Query.Selectors
+        self.date_search_type = query.date_search.type
+        date = query.date_search.values
+        list_of_neos = []
+        for k, v in self.db.get_date_to_neos_map().items():
+            if k == date:
+                list_of_neos += v
+        return list_of_neos[: query.number]

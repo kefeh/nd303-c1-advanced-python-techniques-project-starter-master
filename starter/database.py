@@ -1,6 +1,6 @@
 import csv
 
-from .models import OrbitPath, NearEarthObject
+from models import OrbitPath, NearEarthObject
 
 
 class NEODatabase(object):
