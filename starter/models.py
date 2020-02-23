@@ -37,6 +37,14 @@ class NearEarthObject(object):
                                                                                             [orbit.close_approach_date for orbit in self.orbits],
                                                                                             self.is_potentially_hazardous_asteroid)
 
+    def __repr__(self):
+        """Prints information about the object"""
+
+        return 'NearEarthObject id:{} name:{} orbit_dates:{} harzardous_asteriod:{}'.format(self.id,
+                                                                                            self.name,
+                                                                                            [orbit.close_approach_date for orbit in self.orbits],
+                                                                                            self.is_potentially_hazardous_asteroid)
+
 
 class OrbitPath(object):
     """
