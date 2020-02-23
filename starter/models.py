@@ -29,15 +29,13 @@ class NearEarthObject(object):
         # How do we connect orbits back to the Near Earth Object?
         self.orbits.append(orbit)
 
-    def __repr__(self):
-        """returns information about the object for debugging purposes"""
-
-        return f'NearEarthObject id:{self.id} name:{self.name} orbit_dates:{[orbit.close_approach_date for orbit in self.orbits]} harzardous_asteriod:{self.is_potentially_hazardous_asteroid}'
-
     def __str__(self):
         """Prints information about the object"""
 
-        return f'NearEarthObject id:{self.id} name:{self.name} orbit_dates:{[orbit.close_approach_date for orbit in self.orbits]} harzardous_asteriod:{self.is_potentially_hazardous_asteroid}'
+        return 'NearEarthObject id:{} name:{} orbit_dates:{} harzardous_asteriod:{}'.format(self.id,
+                                                                                            self.name,
+                                                                                            [orbit.close_approach_date for orbit in self.orbits],
+                                                                                            self.is_potentially_hazardous_asteroid)
 
 
 class OrbitPath(object):
@@ -60,4 +58,6 @@ class OrbitPath(object):
     def __str__(self):
         """returns information about the object"""
 
-        return f'OrbitPath neo_name:{self.neo_name} close_approach_date:{self.close_approach_date} missed_distance_kilometers:{self.miss_distance_kilometers}'
+        return 'OrbitPath neo_name:{} close_approach_date:{} missed_distance_kilometers:{}'.format(self.neo_name,
+                                                                                                   self.close_approach_date,
+                                                                                                   self.miss_distance_kilometers)
